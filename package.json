@@ -3,17 +3,22 @@
   "version": "1.0.0",
   "description": "backen by hitesh",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": ""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/VishalMSahani/Backend.git"
   },
-  "author": "",
+  "author": "nodemon src/index.js",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/VishalMSahani/Backend/issues"
   },
-  "homepage": "https://github.com/VishalMSahani/Backend#readme"
+  "homepage": "https://github.com/VishalMSahani/Backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5"
+  }
 }
