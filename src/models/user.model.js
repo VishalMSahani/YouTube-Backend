@@ -26,7 +26,7 @@ const userSchema = new Schema({
     },
     avatar:{
         type:String, 
-        required:true
+        required:false
     },
     covreImage:{
         type:String
@@ -62,8 +62,8 @@ userSchema.pre( 'save', async function (next) {
 }
 
 // token 
-userSchema.method.grantAccessToken = function(){
-    return jwt.sign({
+userSchema.method.grantAccessToken = async function(){
+     return jwt.sign({
         _id: this._id,
         email : this.email,
         username: this.username,
