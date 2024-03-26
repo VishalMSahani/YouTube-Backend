@@ -27,34 +27,33 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(409,"User already exists.")
     }
 
-    // creck for avatar and cover image if there or not 
-    const avatarLocalpath  = req.files?.avatar[0]?.path;
 
-    // let coverImageLoaclpath;
-    // if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
-    //     coverImageLoaclpath = req.files.coverImage[0].path;
-    // }  
+    // const avatarLocalPath = req.files?.avatar[0]?.path;
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-    //chek for avatar 
-    if(!avatarLocalpath){
-        throw new ApiError(422,'Avatar is required')
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
     }
+    
+    console.log(coverImageLocalPath);
+    // if (!avatarLocalPath) {
+    //     throw new ApiError(400, "Avatar file is required")
+    // }
 
-    // // uploading to cloudinary
-    const avatar =  await uploadCloudinary(avatarLocalpath);
-    // const coverImage =  await uploadCloudinary(coverImageLoaclpath);
+    // const avatar = await uploadCloudinary(avatarLocalPath)
+    const coverImage = await uploadCloudinary(coverImageLocalPath)
 
-    //chek for avatar should uploded on clodinary
-    if(!avatar){
-        throw new ApiError(422,'Avatar is required')
-    }
+    // if (!avatar) {
+    //     throw new ApiError(400, "Avatar file is required")
+    // }
 
     //store all data in user variable and create 
     const user = await User.create({
         fullName,
         username,
-        avatar: avatar.url,
-        // coverImage: coverImage?.url || " ",
+        // avatar: avatar.url,
+        coverImage: coverImage?.url || "",
         password,
         email,
     })
