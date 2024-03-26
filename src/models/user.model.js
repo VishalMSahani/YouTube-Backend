@@ -26,9 +26,9 @@ const userSchema = new Schema({
     },
     avatar:{
         type:String, 
-        required:false,
+        required:true,
     },
-    covreImage:{
+    coverImage:{
         type:String
     },
     watchHistory:[
