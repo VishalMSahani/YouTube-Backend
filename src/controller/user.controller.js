@@ -18,7 +18,7 @@ const generateAccessAndRefreshToken =  async (userId) =>{
         return {accessToken, refreshToken}
 
     } catch (error) {
-        throw ApiError(500, "Something went wrong while generating tokens")
+        throw new ApiError(500, "Something went wrong while generating tokens")
     }
 }
 
@@ -94,7 +94,7 @@ const registerUser = asyncHandler( async (req, res) => {
         
         )
    
-})
+});
 
 const loginUser = asyncHandler(async(req, res) =>{
 
@@ -111,7 +111,7 @@ const loginUser = asyncHandler(async(req, res) =>{
     })
 
     if (!user){
-        throw ApiError(401, 'User not found');
+        throw new ApiError(401, 'User not found');
     }
 
     const isPasswordCorrect = await user.matchPasswords(password);
@@ -143,6 +143,21 @@ const loginUser = asyncHandler(async(req, res) =>{
 
 const logoutUser = asyncHandler(async (req,res)=>{
 
+    await User.findByIdAndUpdate(
+        req.userId, {$unset:{refreshToken : 1}} ,
+        {new:true} //return the updated document
+    )
+    const option = {
+        httpOnly : true,
+        secure: true
+    } 
+    return res
+    .status(200)
+    .clearCookie( "accessToken" ,option)
+    .clearCookie( "refreshToken" ,option)
+    .json(new ApiResponse(200, {}, "Logged out Successfully"))
+
 })
+
 
 export {registerUser, loginUser, logoutUser}
