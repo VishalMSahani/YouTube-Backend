@@ -43,7 +43,7 @@ const userSchema = new Schema({
         
     },
     refreshToken:{
-        type:String
+        type: String,
     }
 
 },{timestamps: true})
@@ -62,7 +62,7 @@ userSchema.pre( 'save', async function (next) {
 }
 
 // token 
-userSchema.methods.grantAccessToken = async function(){
+userSchema.methods.grantAccessToken = function(){
      return jwt.sign({
         _id: this._id,
         email : this.email,
