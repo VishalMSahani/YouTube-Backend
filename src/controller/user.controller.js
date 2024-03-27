@@ -5,6 +5,23 @@ import {uploadCloudinary} from '../utils/cloudinary.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 
 
+const generateAccessAndRefreshToken =  async (userId) =>{ 
+
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.grantAccessToken()
+        const refreshToken = user.grantRefreshToken()
+
+        user.refreshToken= refreshToken
+        await user.save({validateBeforeSave:false})
+
+        return {accessToken, refreshToken}
+
+    } catch (error) {
+        throw ApiError(500, "Something went wrong while generating tokens")
+    }
+}
+
 const registerUser = asyncHandler( async (req, res) => {
 
     // 
@@ -79,4 +96,53 @@ const registerUser = asyncHandler( async (req, res) => {
    
 })
 
-export {registerUser}
+const loginUser = asyncHandler(async(req, res) =>{
+
+    const  {username, password, email} = req.body;
+
+    if (!(email || username)){
+        throw new ApiError(400,"Username or Email field is missing");
+    }
+
+    const user = await User.findOne({
+        $or:[
+            {"username": username},
+            {'email': email}]
+    })
+
+    if (!user){
+        throw ApiError(401, 'User not found');
+    }
+
+    const isPasswordCorrect = await user.matchPasswords(password);
+
+    if(!isPasswordCorrect){
+        throw new ApiError(401, 'Incorrect Password');
+    }
+
+    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
+
+    const loggedinUser = await User.findById(user._id).
+    select("-password -refreshToken")
+
+    const option = {
+        httpOnly : true,
+        secure: true
+    }
+
+    return  res
+    .status(200)
+    .cookie("accessToken", accessToken, option)
+    .cookie("refreshToken", refreshToken, option)
+    .json(
+        new ApiResponse(200, {
+            user: loggedinUser, accessToken, refreshToken
+        }, "User Logged in successfully!" )
+    )   
+})
+
+const logoutUser = asyncHandler(async (req,res)=>{
+
+})
+
+export {registerUser, loginUser, logoutUser}

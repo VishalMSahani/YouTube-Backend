@@ -15,10 +15,10 @@ const uploadCloudinary = async(loaclPath) =>{
         const result = await cloudinary.uploader.upload(loaclPath, {
             resource_type: "auto"
         });
-        fs.unlinkSync(loaclPath)
+        fs.unlinkSync(loaclPath) // delete local file after uploading to clodinary server
         return result;
     } catch (error) {
-        fs.unlinkSync(loaclPath); // delete local file after uploading to clodinary server
+        fs.unlinkSync(loaclPath); // delete local file after fail in uploading to clodinary server
         return null;
     }
 }
