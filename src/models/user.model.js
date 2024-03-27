@@ -58,11 +58,11 @@ userSchema.pre( 'save', async function (next) {
  })
 
  userSchema.methods.matchPasswords=async function(password){
-      return await bcrypt.compare(password, this.password)
+    return await bcrypt.compare(password, this.password)
 }
 
 // token 
-userSchema.method.grantAccessToken = async function(){
+userSchema.methods.grantAccessToken = async function(){
      return jwt.sign({
         _id: this._id,
         email : this.email,
@@ -73,7 +73,7 @@ userSchema.method.grantAccessToken = async function(){
     {expiresIn:'1d'} 
     )
 }
-userSchema.method.grantRefreshToken = function(){
+userSchema.methods.grantRefreshToken = function(){
     return jwt.sign({
         _id: this._id
     },

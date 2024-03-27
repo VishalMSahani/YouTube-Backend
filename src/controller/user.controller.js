@@ -8,12 +8,12 @@ import { ApiResponse } from '../utils/apiResponse.js'
 const generateAccessAndRefreshToken =  async (userId) =>{ 
 
     try {
-        const user = await User.findById(userId)
-        const accessToken = user.grantAccessToken()
-        const refreshToken = user.grantRefreshToken()
+        const userToken = await User.findById(userId)
+        const accessToken = userToken.grantAccessToken()
+        const refreshToken = userToken.grantRefreshToken()
 
-        user.refreshToken= refreshToken
-        await user.save({validateBeforeSave:false})
+        userToken.refreshToken= refreshToken
+        await userToken.save({validateBeforeSave:false})
 
         return {accessToken, refreshToken}
 
@@ -86,6 +86,8 @@ const registerUser = asyncHandler( async (req, res) => {
     
     const createduser = await User.findById(user._id).select('-password -grantRefreshToken')
 
+   
+
     if(!createduser){
         throw new ApiError(500,'Something went wrong while reggistring the user! Please try again')
     }
@@ -100,31 +102,38 @@ const loginUser = asyncHandler(async(req, res) =>{
 
     const  {username, password, email} = req.body;
 
+    console.log(email);
+
     if (!(email || username)){
         throw new ApiError(400,"Username or Email field is missing");
     }
 
-    const user = await User.findOne({
+    const login_user = await User.findOne({
         $or:[
             {"username": username},
             {'email': email}]
     })
 
-    if (!user){
+    
+
+    if (!login_user){
         throw new ApiError(401, 'User not found');
     }
 
-    const isPasswordCorrect = await user.matchPasswords(password);
+    const isPasswordCorrect = await login_user.matchPasswords(password);
 
     if(!isPasswordCorrect){
         throw new ApiError(401, 'Incorrect Password');
     }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
+    console.log(isPasswordCorrect);
 
-    const loggedinUser = await User.findById(user._id).
+    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(login_user._id)
+    console.log("accessToken: ",accessToken, "refreshToken", refreshToken);
+
+    const loggedinUser = await User.findById(login_user._id).
     select("-password -refreshToken")
-
+    
     const option = {
         httpOnly : true,
         secure: true
@@ -136,7 +145,7 @@ const loginUser = asyncHandler(async(req, res) =>{
     .cookie("refreshToken", refreshToken, option)
     .json(
         new ApiResponse(200, {
-            user: loggedinUser, accessToken, refreshToken
+            login_user: loggedinUser, accessToken, refreshToken
         }, "User Logged in successfully!" )
     )   
 })
