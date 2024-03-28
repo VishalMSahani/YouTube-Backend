@@ -244,4 +244,49 @@ const changePassword  = asyncHandler(async (req, res) => {
     )
 })
 
-export {registerUser, loginUser, logoutUser,refreshAccessToken, changePassword}
+
+const getCurrentUser = asyncHandler(async (req,res)=>{
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            req.user,
+            "user fetched successfully"
+        )
+    )
+})
+
+const accoountDetails  = asyncHandler(async (req,res)=>{
+
+    const {email , username} = req.body;
+
+    if( !email && !username ){
+        throw new ErrorAuth(400,"provide an email or a username")
+    }
+
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        { $set:{fullName, email}},
+        {new:true}).select("-password");
+
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Account details updated!")
+    )
+     
+})
+
+
+
+
+export {registerUser,
+        loginUser,
+        logoutUser,
+        refreshAccessToken,
+        changePassword,
+        getCurrentUser,
+        accoountDetails
+    }
