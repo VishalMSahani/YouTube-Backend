@@ -3,6 +3,7 @@ import {ApiError} from '../utils/apiError.js'
 import { User } from '../models/user.model.js'
 import {uploadCloudinary} from '../utils/cloudinary.js'
 import { ApiResponse } from '../utils/apiResponse.js'
+import jwt from  "jsonwebtoken"
 
 
 const generateAccessAndRefreshToken =  async (userId) =>{ 
@@ -168,5 +169,79 @@ const logoutUser = asyncHandler(async (req,res)=>{
 
 })
 
+const refreshAccessToken =  asyncHandler(async (req,res)=> {
 
-export {registerUser, loginUser, logoutUser}
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+
+    if(!incomingRefreshToken){
+        throw new ErrorAuth(401, 'No token provided')
+    }
+
+    try {
+        
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+
+        const user = await User.findById(decodedToken._id)
+
+        if(!user) {
+            throw new ErrorAuth(401, 'Invalid refresh token authentication failed!')
+        }
+
+        // here optional chek for refreshtoken in user because that may be null or undefined 
+        if(incomingRefreshToken !== user?.refreshToken){
+            throw new ApiError(403, "Refresh token is expired or used")
+        }
+
+        const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+
+        const option ={
+            httpOnly: true,
+            secure:true
+        }
+
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, option)
+        .cookie("refreshToken", newRefreshToken, option)
+        .json(
+            new ApiResponse(
+                200,
+                {accessToken, refreshToken:newRefreshToken},
+                "New access token generated successfully" 
+                )
+        )
+
+    } catch (error) {
+        throw new ApiError(400, error?.message || "trouble in generating new access token" )
+    }
+})
+
+
+const changePassword  = asyncHandler(async (req, res) => {
+
+    const {oldPassword, newPassword} = req.body;
+
+    const  user = await User.findById(req.user?._id)
+
+    if (!user) {
+       throw new ErrorAuth(401,"User not found");
+    }
+
+    const isPasswordValid = await user.matchPasswords(oldPassword);
+
+    if(!isPasswordValid){
+        throw new ErrorAuth(401,'Invalid old password')
+
+    }
+
+    user.password = newPassword
+    await user.save({validateBeforeSave : false});
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse( 200, {}, "Password changed Successfully!" )
+    )
+})
+
+export {registerUser, loginUser, logoutUser,refreshAccessToken, changePassword}
