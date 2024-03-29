@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import {accountDetails, 
+import {updataAccountDetails, 
         changePassword,
         getCurrentUser, 
         getUserChannelProfile,
@@ -35,9 +35,9 @@ router.route('/login').post(loginUser)
 router.route('/logout').post( verifyJwt, logoutUser)
 router.route("/change-password").post(verifyJwt, changePassword)
 router.route("/current-user").get(verifyJwt, getCurrentUser)
-router.route("/account-details").patch(verifyJwt, accountDetails)
+router.route("/update-account-details").patch(verifyJwt, updataAccountDetails)
 router.route("/update-avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvatar)
-router.route("/update-COver-Image").patch(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
+router.route("/update-Cover-Image").patch(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
 router.route("/c/:username").get(verifyJwt, getUserChannelProfile)
 router.route("/watch-history").get(verifyJwt, getwatchHistory)
 

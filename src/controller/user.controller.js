@@ -4,7 +4,7 @@ import { User } from '../models/user.model.js'
 import {uploadCloudinary} from '../utils/cloudinary.js'
 import { ApiResponse } from '../utils/apiResponse.js'
 import jwt from  "jsonwebtoken"
-import { Mongoose } from 'mongoose'
+import mongoose from 'mongoose'
 
 
 const generateAccessAndRefreshToken =  async (userId) =>{ 
@@ -225,13 +225,13 @@ const changePassword  = asyncHandler(async (req, res) => {
     const  user = await User.findById(req.user?._id)
 
     if (!user) {
-       throw new ErrorAuth(401,"User not found");
+       throw new ApiError(401,"User not found");
     }
 
     const isPasswordValid = await user.matchPasswords(oldPassword);
 
     if(!isPasswordValid){
-        throw new ErrorAuth(401,'Invalid old password')
+        throw new ApiError(401,'Invalid old password')
 
     }
 
@@ -259,16 +259,16 @@ const getCurrentUser = asyncHandler(async (req,res)=>{
     )
 })
 
-const accountDetails  = asyncHandler(async (req,res)=>{
+const updataAccountDetails  = asyncHandler(async (req,res)=>{
 
     const {email , username} = req.body;
 
     if( !email && !username ){
-        throw new ErrorAuth(400,"provide an email or a username")
+        throw new ApiError(400,"provide an email or a username")
     }
 
     const user = await User.findByIdAndUpdate(req.user?._id,
-        { $set:{fullName, email}},
+        { $set:{username, email}},
         {new:true}).select("-password");
 
     
@@ -402,7 +402,7 @@ const getUserChannelProfile = asyncHandler (async (req ,res)=>{
                 },
                 isSubscribed:{
                     $cond:{
-                        if: { $in : [req.user?._id, "Subscribers.subscriber"]},
+                        if: { $in :[req.user?._id, "$Subscribers.subscriber"]},
                         then: true,
                         else: false
                     }
@@ -442,7 +442,7 @@ const getwatchHistory = asyncHandler(async (req,res)=>{
     const user = await User.aggregate([
         {
             $match:{
-                _id : new Mongoose.Types.ObjectId(req.user._id), 
+                _id : new mongoose.Types.ObjectId(req.user._id), 
             }
         },
         {
@@ -498,7 +498,7 @@ export {registerUser,
         refreshAccessToken,
         changePassword,
         getCurrentUser,
-        accountDetails,
+        updataAccountDetails,
         updateUserAvatar,
         updateUserCoverImage,
         getUserChannelProfile,
