@@ -311,6 +311,12 @@ const getPlaylistById = asyncHandler(async(req, res)=>{
         }
     ])
 
+    return res
+    .json(200)
+    .json(
+        new ApiResponse(200, playListVideos, "Playlist by id fetched successfully")
+    )
+
 })
 
 export {createPlaylist,
