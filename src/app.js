@@ -18,7 +18,9 @@ app.use(cookieParser())
 
 //import of router
 import userRouter from './route/user.routes.js';
+import playListRouter from './route/playlist.routes.js'
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/playlist', playListRouter);
 
 export {app}

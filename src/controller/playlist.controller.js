@@ -1,9 +1,9 @@
 import mongoose, {isValidObjectId} from 'mongoose'
-import { ApiError } from '../utils/apiError'
-import { ApiResponse } from '../utils/apiResponse'
-import Video from '../models/video.model.js'
-import Playlist from '../models/playlist.model.js'
-import { asyncHandler } from '../utils/asyncHandler'
+import { ApiError } from '../utils/apiError.js'
+import { ApiResponse } from '../utils/apiResponse.js'
+import {Video} from '../models/video.model.js'
+import {Playlist} from '../models/playlist.model.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 
 const createPlaylist = asyncHandler(async(req, res) => {
 
@@ -36,7 +36,7 @@ const addVideoToPlaylist = asyncHandler(async(req, res)=>{
 
     const {videoId, playlistId}= req.params;
 
-    const playlist =await Playlist.findById(playlistId);
+    const playlist = await Playlist.findById(playlistId);
     
     if(!playlist){
         throw new ApiError(400,'Playlist not found')
@@ -83,7 +83,7 @@ const updatePlaylist  = asyncHandler(async (req, res)=>{
 
     const playlist = await Playlist.findById(playlistId);
 
-    if (playlist) {
+    if (!playlist) {
         throw new ApiError(400,"playlist not found")
     }
 
@@ -104,7 +104,7 @@ const updatePlaylist  = asyncHandler(async (req, res)=>{
     return res
     .status(200)
     .json(
-        new ApiResponse(200, "Playlist updated successfully")
+        new ApiResponse(200, updatePlaylist, "Playlist updated successfully")
     )
 })
 
@@ -222,7 +222,7 @@ const getUserPlaylist = asyncHandler(async(req, res)=>{
     return res
     .status(200)
     .json(
-        new ApiResponse(200,playlist, "User Playlist Fetched Successfully")
+        new ApiResponse(200, playlist , "User Playlist Fetched Successfully")
     )
 
 })
@@ -310,14 +310,14 @@ const getPlaylistById = asyncHandler(async(req, res)=>{
             }
         }
     ])
-
+    console.log(playListVideos);
     return res
     .json(200)
     .json(
-        new ApiResponse(200, playListVideos, "Playlist by id fetched successfully")
+        new ApiResponse(200, playListVideos[0], "Playlist by id fetched successfully")
     )
 
-})
+});
 
 export {createPlaylist,
         addVideoToPlaylist,
