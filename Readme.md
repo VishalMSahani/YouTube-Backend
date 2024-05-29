@@ -1,4 +1,4 @@
-# YouTube + Twitter Backend 
+# YouTube Backend Clone
 
 ## Introduction
 
