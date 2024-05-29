@@ -56,7 +56,7 @@ This is a ``YouTube Backend Clone`` backend project that covers almost the funct
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Hruthik-28/youtube-twitter.git
+    https://github.com/VishalMSahani/YouTube-Backend.git
     ```
 
 2. **Install dependencies:**
